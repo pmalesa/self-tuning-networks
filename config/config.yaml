@@ -1,0 +1,18 @@
+datasets:
+  iris:
+    path: "data/iris/iris.csv"
+    delimiter: ","
+    label: 
+  student_dropout: 
+    path: "data/student_dropout/student_dropout.csv"
+    delimiter: ";"
+    label: "Target"
+  house_rent: 
+    path: "data/house_rent/house_rent.csv"
+    delimiter: ","
+    label: "Rent"
+
+hyperparameters:
+  learning_rate: 0.001
+  batch_size: 32
+  epochs: 50  
