@@ -3,6 +3,7 @@ import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, MinMaxScaler, StandardScaler, LabelEncoder
 from sklearn.impute import SimpleImputer
+from sklearn.model_selection import train_test_split
 import yaml
 import re
 
@@ -129,7 +130,7 @@ def preprocess_label_data(df: pd.DataFrame) -> np.ndarray:
 def preprocess_data(X: pd.DataFrame, y: pd.DataFrame, regression: bool = False):
     X_preprocessed = preprocess_feature_data(X)
     if regression:
-        return X_preprocessed, y
+        return X_preprocessed, y.to_numpy()
     else:
         y_preprocessed, label_mapping = preprocess_label_data(y)
         return X_preprocessed, y_preprocessed, label_mapping
@@ -140,3 +141,18 @@ def preprocess_data(X: pd.DataFrame, y: pd.DataFrame, regression: bool = False):
 def is_date_format(s: pd.Series) -> bool:
     date_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
     return s.dropna().apply(lambda x: bool(date_pattern.match(x))).all()
+
+'''
+  Function that splits data into training, validation, and test data sets and
+  returns the result of splitting.
+'''
+def train_val_test_split(X: np.ndarray, y: np.ndarray, test_size: float = 0.15, train_size: float = 0.70, val_size: float = 0.15, validate: bool = False, random_state = None):
+    if not validate:
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size)
+        return X_train, X_test, y_train, y_test
+    elif validate and train_size + val_size + test_size == 1.0:
+        X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size = (1 - train_size), random_state = random_state)
+        X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size = (test_size / (test_size + val_size)), random_state = random_state)
+        return X_train, X_val, X_test, y_train, y_val, y_test
+    else:
+        raise ValueError(f'Split proportions {test_size}, {val_size}, {train_size} do not add up.')
