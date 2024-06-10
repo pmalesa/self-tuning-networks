@@ -12,7 +12,26 @@ datasets:
     delimiter: ","
     label: "Rent"
 
-hyperparameters:
-  learning_rate: 0.001
-  batch_size: 32
-  epochs: 50  
+stn:
+  tune_scales: False
+  tune_input_dropout: True
+  tune_dropout: True
+  initial_dropout_value: 0.05
+  initial_dropout_scale: 1.0
+  percent_valid: 0.15
+  train_batch_size: 16
+  valid_batch_size: 16
+  test_batch_size: 16
+  total_epochs: 100
+  warmup_epochs: 5
+  train_lr: 0.01
+  valid_lr: 0.01
+  scale_lr: 0.01
+  train_steps: 5
+  valid_steps: 1
+  entropy_weight: 0.001
+  log_interval: 50
+  no_cuda: False
+  data_seed: 0
+  model_seed: 0
+  linearize: False

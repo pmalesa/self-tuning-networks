@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-from utils.data_preprocessing import load_data, preprocess_data, train_val_test_split
+from utils.data_preprocessing import load_data, preprocess_data
 from utils.data_saver import save_metrics, save_results
 from sklearn.model_selection import KFold, train_test_split
 from models.nn import NeuralNetwork
@@ -144,7 +144,7 @@ def run_adam_experiment():
     # ---------------------------------------------------------------------
 
     # Iris dataset experiment
-    iris_hidden_layers = [16, 16, 16] # Can be [16, 8] or [8, 4] as well
+    iris_hidden_layers = [16, 16, 16]
     model_iris, best_params = train_and_validate(X_iris_train, y_iris_train, X_iris_test, y_iris_test, "iris", iris_hidden_layers, "classification")
     results = test_model(model_iris, X_iris_test, y_iris_test, "classification")
     save_results("IRIS", "classification", best_params, results, "adam")
@@ -156,7 +156,7 @@ def run_adam_experiment():
     save_results("STUDENT_DROPOUT", "classification", best_params, results, "adam")
 
     # House rent dataset experiment
-    house_hidden_layers = [2048, 1024, 512, 256, 128]
+    house_hidden_layers = [2048, 1024, 512]
     model_house, best_params = train_and_validate(X_house_train, y_house_train, X_house_test, y_house_test, "house", house_hidden_layers, "regression")
     results = test_model(model_house, X_house_test, y_house_test, "regression")
     save_results("HOUSE_RENT", "regression", best_params, results, "adam")

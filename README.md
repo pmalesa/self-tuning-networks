@@ -12,6 +12,11 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
+### Deactivation
+```bash
+source deactivate
+```
+
 ## Install dependencies
 ```bash
 pip install -r requirements.txt
@@ -23,10 +28,17 @@ pip freeze > requirements.txt
 ```
 
 ## Run experiments
+### Neural network model with Adam optimizer experiment
 ```bash
 python -m experiments.run_adam_experiment
+```
+### STN model experiment
+```bash
 python -m experiments.run_stn_experiment
-python -m experiments.run_delta_stn_experiment
+```
+### Delta-STN model experiment
+```bash
+python -m experiments.run_stn_experiment --delta_stn
 ```
 
 ## Make plots
