@@ -72,11 +72,13 @@ class NeuralNetwork(nn.Module):
                             test_mse = mean_squared_error(y_test, test_outputs)
                             test_score.append(test_mse)
 
+            print("=" * 80)
             if self.task == "classification":
                 print(f"Epoch [{epoch + 1}/{epochs}], Loss: {running_loss / len(train_loader):.4f}, Train accuracy: {epoch_accuracy:.4f}")
             else:
                 print(f"Epoch [{epoch + 1}/{epochs}], Loss: {running_loss / len(train_loader):.4f}")
-        
+            print("=" * 80)
+
         return train_loss, train_score, test_score
 
     def evaluate(self, test_loader):

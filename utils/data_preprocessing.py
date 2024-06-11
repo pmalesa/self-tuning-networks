@@ -130,7 +130,10 @@ def preprocess_label_data(df: pd.DataFrame) -> np.ndarray:
 def preprocess_data(X: pd.DataFrame, y: pd.DataFrame, regression: bool = False):
     X_preprocessed = preprocess_feature_data(X)
     if regression:
-        return X_preprocessed, y.to_numpy()
+        # Normalization of target values to prevent too big loss values (NaN)
+        scaler_y = StandardScaler()
+        y_preprocessed = scaler_y.fit_transform(y.to_numpy().reshape(-1, 1)).flatten()
+        return X_preprocessed, y_preprocessed
     else:
         y_preprocessed, label_mapping = preprocess_label_data(y)
         return X_preprocessed, y_preprocessed, label_mapping

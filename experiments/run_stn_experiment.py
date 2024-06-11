@@ -15,9 +15,15 @@ def get_data_loaders(data, batch_size = 16, shuffle = True, task = "classificati
     X_train_tensor = torch.tensor(data[0].astype(np.float32))
     X_val_tensor = torch.tensor(data[1].astype(np.float32))
     X_test_tensor = torch.tensor(data[2].astype(np.float32))
-    y_train_tensor = torch.tensor(data[3], dtype = torch.long)
-    y_val_tensor = torch.tensor(data[4], dtype = torch.long)
-    y_test_tensor = torch.tensor(data[5], dtype = torch.long)
+
+    if task == "classification":
+        y_train_tensor = torch.tensor(data[3], dtype = torch.long)
+        y_val_tensor = torch.tensor(data[4], dtype = torch.long)
+        y_test_tensor = torch.tensor(data[5], dtype = torch.long)
+    else:
+        y_train_tensor = torch.tensor(data[3].astype(np.float32))
+        y_val_tensor = torch.tensor(data[4].astype(np.float32))
+        y_test_tensor = torch.tensor(data[5].astype(np.float32))
 
     train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
     train_loader = DataLoader(train_dataset, batch_size = batch_size, shuffle = shuffle)
@@ -64,15 +70,15 @@ def run_stn_experiment(delta_stn = False):
     
     # Iris dataset experiment
     iris_train_loader, iris_val_loader, iris_test_loader = get_data_loaders(iris_data)
-    train_stn_model(iris_input_size, iris_output_size, iris_train_loader, iris_val_loader, iris_test_loader, [16, 16, 16], delta_stn = delta_stn)
+    train_stn_model(iris_input_size, iris_output_size, iris_train_loader, iris_val_loader, iris_test_loader, hidden_sizes = [16, 16, 16], dataset = "iris", delta_stn = delta_stn)
 
     # Student dropout dataset experiment
-    # student_train_loader, student_val_loader, student_test_loader = get_data_loaders(student_data)
-    # train_stn_model(student_input_size, student_output_size, student_train_loader, student_val_loader, student_test_loader, [64, 32, 16], delta_stn = delta_stn)
+    student_train_loader, student_val_loader, student_test_loader = get_data_loaders(student_data)
+    train_stn_model(student_input_size, student_output_size, student_train_loader, student_val_loader, student_test_loader, hidden_sizes = [64, 32, 16], dataset = "student", delta_stn = delta_stn)
 
     # House rent dataset experiment
-    # house_train_loader, house_val_loader, house_test_loader = get_data_loaders(house_data)
-    # train_stn_model(house_input_size, house_output_size, house_train_loader, house_val_loader, house_test_loader, [2048, 1024, 512], delta_stn = delta_stn)
+    house_train_loader, house_val_loader, house_test_loader = get_data_loaders(house_data, task = "regression")
+    train_stn_model(house_input_size, house_output_size, house_train_loader, house_val_loader, house_test_loader, hidden_sizes = [2048, 1024, 512], dataset = "house", task = "regression", delta_stn = delta_stn)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Run STN experiment")
