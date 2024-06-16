@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_squared_error
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_error, mean_squared_error, r2_score
 import numpy as np
 
 class NeuralNetwork(nn.Module):
@@ -105,5 +105,7 @@ class NeuralNetwork(nn.Module):
             return (accuracy, precision, recall, f1)
 
         elif self.task == "regression":
+            mae = mean_absolute_error(all_labels, all_preds)
             mse = mean_squared_error(all_labels, all_preds)
-            return mse
+            r2 = r2_score(all_labels, all_preds)
+            return (mae, mse, r2)

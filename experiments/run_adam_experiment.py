@@ -144,22 +144,22 @@ def run_adam_experiment():
     # ---------------------------------------------------------------------
 
     # Iris dataset experiment
-    iris_hidden_layers = [16, 16, 16]
+    """iris_hidden_layers = [16, 16, 16]
     model_iris, best_params = train_and_validate(X_iris_train, y_iris_train, X_iris_test, y_iris_test, "iris", iris_hidden_layers, "classification")
     results = test_model(model_iris, X_iris_test, y_iris_test, "classification")
-    save_results("IRIS", "classification", best_params, results, "adam")
+    save_results("iris", "classification", results, "adam", best_params)
 
     # Student dropout dataset experiment
     student_hidden_layers = [64, 32, 16]
     model_student, best_params = train_and_validate(X_student_train, y_student_train, X_student_test, y_student_test, "student", student_hidden_layers, "classification")
     results = test_model(model_student, X_student_test, y_student_test, "classification")
-    save_results("STUDENT_DROPOUT", "classification", best_params, results, "adam")
+    save_results("student", "classification", results, "adam", best_params)"""
 
     # House rent dataset experiment
     house_hidden_layers = [2048, 1024, 512]
     model_house, best_params = train_and_validate(X_house_train, y_house_train, X_house_test, y_house_test, "house", house_hidden_layers, "regression")
     results = test_model(model_house, X_house_test, y_house_test, "regression")
-    save_results("HOUSE_RENT", "regression", best_params, results, "adam")
+    save_results("house", "regression", results, "adam", best_params)
 
 if __name__ == "__main__":
     run_adam_experiment()

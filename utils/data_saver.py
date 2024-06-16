@@ -14,7 +14,9 @@ def save_results(dataset: str, task: str, results, model, best_params = None):
             file.write(f"   - Recall: {results[2]}\n")
             file.write(f"   - F1: {results[3]}\n\n")
         elif task == "regression":
-            file.write(f"   - MSE: {results}\n\n")
+            file.write(f"   - MAE: {results[0]}\n")
+            file.write(f"   - MSE: {results[1]}\n")
+            file.write(f"   - R2: {results[2]}\n\n")
 
 def save_metrics(train_loss, train_score, test_score, task, model, dataset):
     if not os.path.exists("plot_data"):

@@ -68,7 +68,11 @@ class StnNeuralNetwork(StnModel):
         x = x.view(-1, self.input_size)
 
         if "dropout0" in self.h_container.h_dict:
-            x = dropout(x, self.h_container.transform_perturbed_hyper(h_tensor, "dropout0"), self.training)
+            # at one point x_transformed becomes tensor of 'nan's
+            x_transformed = self.h_container.transform_perturbed_hyper(h_tensor, "dropout0")
+            if torch.isnan(x_transformed).any():
+                print(f'[inside forward()]: {h_tensor}')
+            x = dropout(x, x_transformed, self.training)
 
         for i in range(len(self.layers) - 1):
             x = self.layers[i](x, h_net)
@@ -185,7 +189,7 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
         
     # -------------------------------------- Evaluation functions --------------------------------------
     def delta_stn_per_epoch_evaluate(current_epoch, train_score = None):
-        def evaluate(loader):
+        def evaluate(loader, test = False):
             model.eval()
             correct = total = loss = 0.
             with torch.no_grad():
@@ -197,6 +201,9 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
                         loss += F.cross_entropy(pred.float(), labels.long(), reduction = "sum").item()
                         hard_pred = torch.max(pred, 1)[1]
                         correct += (hard_pred == labels).sum().item()
+                        if not test:
+                            all_preds.extend(hard_pred.cpu().numpy())
+                            all_labels.extend(labels.cpu().numpy())
                     elif task == "regression":
                         loss += F.mse_loss(pred.float(), labels.float(), reduction = "sum").item()
                     total += labels.size(0)
@@ -244,7 +251,7 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
         return val_score[0] if task == "classification" else val_score
 
     def stn_per_epoch_evaluate(current_epoch, train_score = None):
-        def evaluate(loader):
+        def evaluate(loader, test = False):
             model.eval()
             correct = total = loss = 0.
             with torch.no_grad():
@@ -256,6 +263,10 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
                         loss += F.cross_entropy(pred.float(), labels.long(), reduction = "sum").item()
                         hard_pred = torch.max(pred, 1)[1]
                         correct += (hard_pred == labels).sum().item()
+                        if not test:
+                            all_preds.extend(hard_pred.cpu().numpy())
+                            all_labels.extend(labels.cpu().numpy())
+
                     elif task == "regression":
                         loss += F.mse_loss(pred.float(), labels.float(), reduction = "sum").item()
                     total += labels.size(0)
@@ -268,7 +279,7 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
         # if train_score is None:
         train_score = evaluate(train_loader)
         val_score = evaluate(val_loader)
-        test_score = evaluate(test_loader)
+        test_score = evaluate(test_loader, test = True)
 
         print("=" * 110)
         if task == "classification":
@@ -316,19 +327,19 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
         evaluate_fnc(parameters["total_epochs"])
         sys.stdout.flush()
 
-        # if task == "classification":
-        #     metrics["accuracy"] = accuracy_score(all_labels, all_preds)
-        #     metrics["f1"] = f1_score(all_labels, all_preds, average = "weighted")
-        #     metrics["precision"] = precision_score(all_labels, all_preds, average = "weighted")
-        #     metrics["recall"] = recall_score(all_labels, all_preds, average = "weighted")
+        if task == "classification":
+            metrics["accuracy"] = accuracy_score(all_labels, all_preds)
+            metrics["f1"] = f1_score(all_labels, all_preds, average = "weighted", zero_division = np.nan)
+            metrics["precision"] = precision_score(all_labels, all_preds, average = "weighted", zero_division = np.nan)
+            metrics["recall"] = recall_score(all_labels, all_preds, average = "weighted", zero_division = np.nan)
 
         # Save results
-        # if task == "classification":
-        #     results = (metrics["accuracy"], metrics["precision"], metrics["recall"], metrics["f1"])
+        if task == "classification":
+            results = (metrics["accuracy"], metrics["precision"], metrics["recall"], metrics["f1"])
         # else:
         #     results = test_loss[-1]
-        # save_results(dataset, task, results, model_name)
         model_name = "delta_stn" if delta_stn else "stn"
+        save_results(dataset, task, results, model_name)
         save_metrics_stn(train_loss, val_loss, test_loss, task, model_name, dataset, val_acc, test_acc)
 
     except KeyboardInterrupt:

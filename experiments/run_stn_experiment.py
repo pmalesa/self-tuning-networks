@@ -77,8 +77,8 @@ def run_stn_experiment(delta_stn = False):
     train_stn_model(student_input_size, student_output_size, student_train_loader, student_val_loader, student_test_loader, hidden_sizes = [64, 32, 16], dataset = "student", delta_stn = delta_stn)
 
     # House rent dataset experiment
-    house_train_loader, house_val_loader, house_test_loader = get_data_loaders(house_data, task = "regression")
-    train_stn_model(house_input_size, house_output_size, house_train_loader, house_val_loader, house_test_loader, hidden_sizes = [2048, 1024, 512], dataset = "house", task = "regression", delta_stn = delta_stn)
+    """house_train_loader, house_val_loader, house_test_loader = get_data_loaders(house_data, task = "regression")
+    train_stn_model(house_input_size, house_output_size, house_train_loader, house_val_loader, house_test_loader, hidden_sizes = [2048, 1024, 512], dataset = "house", task = "regression", delta_stn = delta_stn)"""
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Run STN experiment")

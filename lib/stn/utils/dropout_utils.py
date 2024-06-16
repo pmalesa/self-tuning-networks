@@ -11,8 +11,14 @@ def dropout(x, probs, training=False):
         return F.dropout(x, probs, training)
     x_size = x.size()
     x = x.view(x.size(0), -1)
+
+    # probs passed are all equal to NaN at some point
+    if torch.isnan(1 - probs).any():
+        print(f'[inside dropout]: {probs}')
+
     probs = probs.unsqueeze(1).repeat(1, x.size(1)).detach()
     mask = (1 - probs).bernoulli().div_(1 - probs)
+
     return (x.float() * mask).view(x_size)
 
 

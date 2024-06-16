@@ -45,6 +45,7 @@ def plot_metrics(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy")
     plt.tight_layout()
+    plt.savefig('img/adam_iris_dataset.png')
 
     # Student plots
     plt.figure("Student Dropout Dataset", figsize = (12, 8))
@@ -70,6 +71,7 @@ def plot_metrics(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy")
     plt.tight_layout()
+    plt.savefig('img/adam_student_dataset.png')
 
     # House plots
     plt.figure("House Rent Dataset", figsize = (12, 8))
@@ -86,9 +88,9 @@ def plot_metrics(model_name):
         plt.plot(house_test_mse, color = "magenta")
         plt.title("House Training Mean Square Error")
         plt.xlabel("Epochs")
-        plt.ylabel("Accuracy")
+        plt.ylabel("MSE")
     plt.tight_layout()
-    plt.show()
+    plt.savefig('img/adam_house_dataset.png')
 
 
 def plot_metrics_stn(model_name):
@@ -137,6 +139,7 @@ def plot_metrics_stn(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Loss")
     plt.tight_layout()
+    plt.savefig(f'img/{model_name}_iris_dataset_loss.png')
 
     plt.figure("Iris Dataset Accuracy", figsize = (16, 8))
     if os.path.exists(files["iris_val_accuracy"]):
@@ -154,6 +157,7 @@ def plot_metrics_stn(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy")
     plt.tight_layout()
+    plt.savefig(f'img/{model_name}_iris_dataset_accuracy.png')
 
     # Student plots
     plt.figure("Student Dropout Dataset Loss", figsize = (16, 8))
@@ -179,6 +183,7 @@ def plot_metrics_stn(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Loss")
     plt.tight_layout()
+    plt.savefig(f'img/{model_name}_student_dataset_loss.png')
 
     plt.figure("Student Dropout Dataset Accuracy", figsize = (16, 8))
     if os.path.exists(files["student_val_accuracy"]):
@@ -196,9 +201,10 @@ def plot_metrics_stn(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Accuracy")
     plt.tight_layout()
+    plt.savefig(f'img/{model_name}_student_dataset_accuracy.png')
 
     # House plots
-    plt.figure("House Rent Dataset", figsize = (12, 8))
+    plt.figure("House Rent Dataset", figsize = (16, 8))
     if os.path.exists(files["house_train_loss"]):
         house_train_loss = pd.read_csv(files["house_train_loss"], header = None)
         plt.subplot(2, 2, 1)
@@ -221,7 +227,7 @@ def plot_metrics_stn(model_name):
         plt.xlabel("Epochs")
         plt.ylabel("Loss")
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f'img/{model_name}_house_dataset.png')
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
