@@ -18,7 +18,7 @@ import yaml
 import sys
 import os
 
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, mean_absolute_error, mean_squared_error, r2_score
 from utils.data_saver import save_metrics_stn, save_results
 
 # Initialize CUDA
@@ -70,8 +70,8 @@ class StnNeuralNetwork(StnModel):
         if "dropout0" in self.h_container.h_dict:
             # at one point x_transformed becomes tensor of 'nan's
             x_transformed = self.h_container.transform_perturbed_hyper(h_tensor, "dropout0")
-            if torch.isnan(x_transformed).any():
-                print(f'[inside forward()]: {h_tensor}')
+            """if torch.isnan(x_transformed).any():
+                print(f'[inside forward()]: {h_tensor}')"""
             x = dropout(x, x_transformed, self.training)
 
         for i in range(len(self.layers) - 1):
@@ -83,7 +83,7 @@ class StnNeuralNetwork(StnModel):
         x = self.layers[-1](x, h_net)
 
         if self.output_size == 1:
-            x = x.view(-1)
+            x = x.squeeze()
 
         return x
     
@@ -111,6 +111,11 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
         "precision": -1,
         "recall": -1,
         "f1": -1
+    }
+    metrics_reg = {
+        "mae": -1,
+        "mse": -1,
+        "r2": -1
     }
 
     # Configure hyperparameters
@@ -159,6 +164,7 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
 
     model = StnNeuralNetwork(input_size = input_size, hidden_sizes = hidden_sizes, output_size = output_size,
                              h_container = h_container, num_hyper = num_hyper)
+
     model = model.to(device)
     if task == "classification":
         criterion = nn.CrossEntropyLoss(reduction = "mean").to(device)
@@ -206,6 +212,9 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
                             all_labels.extend(labels.cpu().numpy())
                     elif task == "regression":
                         loss += F.mse_loss(pred.float(), labels.float(), reduction = "sum").item()
+                        if not test:
+                            all_preds.extend(pred.float().cpu().numpy())
+                            all_labels.extend(labels.cpu().numpy())
                     total += labels.size(0)
             
             if task == "classification":
@@ -216,7 +225,7 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
         # if train_score is None:
         train_score = evaluate(train_loader)
         val_score = evaluate(val_loader)
-        test_score = evaluate(test_loader)
+        test_score = evaluate(test_loader, test = True)
 
         print("=" * 110)
         if task == "classification":
@@ -266,9 +275,11 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
                         if not test:
                             all_preds.extend(hard_pred.cpu().numpy())
                             all_labels.extend(labels.cpu().numpy())
-
                     elif task == "regression":
                         loss += F.mse_loss(pred.float(), labels.float(), reduction = "sum").item()
+                        if not test:
+                            all_preds.extend(pred.float().cpu().numpy())
+                            all_labels.extend(labels.cpu().numpy())
                     total += labels.size(0)
             if task == "classification":
                 accuracy = correct / float(total)
@@ -332,12 +343,17 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
             metrics["f1"] = f1_score(all_labels, all_preds, average = "weighted", zero_division = np.nan)
             metrics["precision"] = precision_score(all_labels, all_preds, average = "weighted", zero_division = np.nan)
             metrics["recall"] = recall_score(all_labels, all_preds, average = "weighted", zero_division = np.nan)
+        else:
+            metrics_reg["mae"] = mean_absolute_error(all_labels, all_preds)
+            metrics_reg["mse"] = mean_squared_error(all_labels, all_preds)
+            metrics_reg["r2"] = r2_score(all_labels, all_preds)
 
         # Save results
         if task == "classification":
             results = (metrics["accuracy"], metrics["precision"], metrics["recall"], metrics["f1"])
-        # else:
-        #     results = test_loss[-1]
+        else:
+            results = (metrics_reg['mae'], metrics_reg['mse'], metrics_reg['r2'])
+            
         model_name = "delta_stn" if delta_stn else "stn"
         save_results(dataset, task, results, model_name)
         save_metrics_stn(train_loss, val_loss, test_loss, task, model_name, dataset, val_acc, test_acc)

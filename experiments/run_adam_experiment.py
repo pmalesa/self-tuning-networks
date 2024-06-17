@@ -134,8 +134,10 @@ def run_adam_experiment():
     X_student_processed, y_student_processed, student_label_mapping = preprocess_data(X_student, y_student)
 
     X_house, y_house = load_data("house_rent")
-    X_house_processed, y_house_processed = preprocess_data(X_house, y_house, regression = True)
-
+    X_house_small = X_house.sample(frac = 0.25)
+    y_house_small = y_house.iloc[X_house_small.index]
+    X_house_processed, y_house_processed = preprocess_data(X_house_small, y_house_small, regression = True)
+    
     # Split the datasets into training, validation and test subsets
     X_iris_train, X_iris_test, y_iris_train, y_iris_test = train_test_split(X_iris_processed, y_iris_processed, test_size = 0.1, random_state = 42)
     X_student_train, X_student_test, y_student_train, y_student_test = train_test_split(X_student_processed, y_student_processed, test_size = 0.1, random_state = 42)
@@ -144,7 +146,7 @@ def run_adam_experiment():
     # ---------------------------------------------------------------------
 
     # Iris dataset experiment
-    """iris_hidden_layers = [16, 16, 16]
+    iris_hidden_layers = [16, 16, 16]
     model_iris, best_params = train_and_validate(X_iris_train, y_iris_train, X_iris_test, y_iris_test, "iris", iris_hidden_layers, "classification")
     results = test_model(model_iris, X_iris_test, y_iris_test, "classification")
     save_results("iris", "classification", results, "adam", best_params)
@@ -153,7 +155,7 @@ def run_adam_experiment():
     student_hidden_layers = [64, 32, 16]
     model_student, best_params = train_and_validate(X_student_train, y_student_train, X_student_test, y_student_test, "student", student_hidden_layers, "classification")
     results = test_model(model_student, X_student_test, y_student_test, "classification")
-    save_results("student", "classification", results, "adam", best_params)"""
+    save_results("student", "classification", results, "adam", best_params)
 
     # House rent dataset experiment
     house_hidden_layers = [2048, 1024, 512]

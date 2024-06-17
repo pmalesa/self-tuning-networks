@@ -48,7 +48,9 @@ def run_stn_experiment(delta_stn = False):
     X_student_processed, y_student_processed, student_label_mapping = preprocess_data(X_student, y_student)
 
     X_house, y_house = load_data("house_rent")
-    X_house_processed, y_house_processed = preprocess_data(X_house, y_house, regression = True)
+    X_house_small = X_house.sample(frac = 0.25)
+    y_house_small = y_house.iloc[X_house_small.index]
+    X_house_processed, y_house_processed = preprocess_data(X_house_small, y_house_small, regression = True)
 
     # Split the datasets into training, validation and test subsets
     X_iris_train, X_iris_val, X_iris_test, y_iris_train, y_iris_val, y_iris_test = train_val_test_split(X_iris_processed, y_iris_processed, validate = True, random_state = 42)
@@ -77,8 +79,8 @@ def run_stn_experiment(delta_stn = False):
     train_stn_model(student_input_size, student_output_size, student_train_loader, student_val_loader, student_test_loader, hidden_sizes = [64, 32, 16], dataset = "student", delta_stn = delta_stn)
 
     # House rent dataset experiment
-    """house_train_loader, house_val_loader, house_test_loader = get_data_loaders(house_data, task = "regression")
-    train_stn_model(house_input_size, house_output_size, house_train_loader, house_val_loader, house_test_loader, hidden_sizes = [2048, 1024, 512], dataset = "house", task = "regression", delta_stn = delta_stn)"""
+    house_train_loader, house_val_loader, house_test_loader = get_data_loaders(house_data, task = "regression")
+    train_stn_model(house_input_size, house_output_size, house_train_loader, house_val_loader, house_test_loader, hidden_sizes = [2048, 1024, 512], dataset = "house", task = "regression", delta_stn = delta_stn)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = "Run STN experiment")
