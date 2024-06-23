@@ -48,23 +48,6 @@ class StnNeuralNetwork(StnModel):
         return self.layers
     
     def forward(self, x, h_net, h_tensor):
-        # OLD method
-        # x = x.view(-1, self.input_size)
-        # if "dropout0" in self.h_container.h_dict:
-        #     x = dropout(x, self.h_container.transform_perturbed_hyper(h_tensor, "dropout0"), self.training)
-
-        # x = self.layers[0](x, h_net)
-        # x = F.relu(x)
-        # if "dropout1" in self.h_container.h_dict:
-        #     x = dropout(x, self.h_container.transform_perturbed_hyper(h_tensor, "dropout1"), self.training)
-
-        # x = self.layers[1](x, h_net)
-        # x = F.relu(x)
-        # if "dropout2" in self.h_container.h_dict:
-        #     x = dropout(x, self.h_container.transform_perturbed_hyper(h_tensor, "dropout2"), self.training)
-
-        # x = self.layers[2](x, h_net)
-
         x = x.view(-1, self.input_size)
 
         if "dropout0" in self.h_container.h_dict:
@@ -93,10 +76,6 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
     with open("config/config.yaml", "r") as file:
         config = yaml.safe_load(file)
         parameters = config["stn"]
-    
-    # wandb.init(project = f"stn_iris",
-    #        tensorboard = True,
-    #        dir = f"results/stn_results")
 
     # Initialize metrics
     train_loss = []
@@ -144,13 +123,7 @@ def train_stn_model(input_size, output_size, train_loader, val_loader, test_load
             min_range = 0., max_range = 0.95,
             discrete = False, same_perturb_mb = False
         )
-        # h_container.register(
-        #     "dropout3",
-        #     parameters["initial_dropout_value"],
-        #     parameters["initial_dropout_scale"],
-        #     min_range = 0., max_range = 0.95,
-        #     discrete = False, same_perturb_mb = False
-        # )
+
     num_hyper = h_container.get_size()
 
     # Define models and optimizers
